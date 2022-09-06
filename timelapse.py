@@ -5,10 +5,10 @@ import imutils
 NUM_INPUT_IMAGES = 12
 OUTPUT_IMAGE_WIDTH = 500
 # max number of features of interest to consider
-MAX_FEATURES = 1000
+MAX_FEATURES = 5000
 # percentage of features of interest to keep
 # lower percentage reduces noise
-KEEP_PERCENT = 0.2
+KEEP_PERCENT = 0.03
 # use ORB algorithm to detect keypoints
 ORB = cv2.ORB_create(MAX_FEATURES)
 MATCHER = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
@@ -58,25 +58,28 @@ def overlay_images(img1, img2, i):
     cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
     cv2.imshow(f'Overlayed {i}', output)
 
+def get_processed_image(img_path1, img_path2, i):
+    img1 = resize(cv2.imread(img_path1))
+    img2 = resize(cv2.imread(img_path2))
+
+    img1_grey = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+    img2_grey = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+    aligned = get_matches(img1_grey, img2_grey, img2)
+
+    #overlay_images(img1, aligned, i)
+
+    return aligned
+
 if __name__=='__main__':
     processed_images = [resize(cv2.imread('photos/1.jpg'))]
 
     for i in range(1, NUM_INPUT_IMAGES):
-        img1 = resize(cv2.imread(f'photos/{i}.jpg'))
-        img2 = resize(cv2.imread(f'photos/{i + 1}.jpg'))
-
-        img1_grey = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-        img2_grey = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-
-        aligned = get_matches(img1_grey, img2_grey, img2)
-
-        # overlay_images(img1, aligned, i)
-
-        processed_images.append(aligned)
+         processed_images.append(get_processed_image(f'photos/{i}.jpg', f'photos/{i+1}.jpg', i))
 
     # display processed images in sequence
     for image in processed_images:
-        cv2.imshow('display', image)
-        cv2.waitKey(1000)
+       cv2.imshow('display', image)
+       cv2.waitKey(1000)
 
     cv2.destroyAllWindows()
