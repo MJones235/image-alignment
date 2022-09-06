@@ -15,7 +15,7 @@ MATCHER = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING
 def resize(img):
     return imutils.resize(img, width=OUTPUT_IMAGE_WIDTH)
 
-def get_matches(img1, img2):
+def get_matches(img1, img2, img2_colour):
     # detect keypoints in each image
     # extract local invariant features
     (kp1, desc1) = ORB.detectAndCompute(img1, None)
@@ -48,15 +48,26 @@ def get_matches(img1, img2):
     (H, mask) = cv2.findHomography(pts2, pts1, method=cv2.RANSAC)
 	# use the homography matrix to align the images
     (h, w) = img1.shape[:2]
-    aligned_img = cv2.warpPerspective(img2, H, (w, h))
+    aligned_img = cv2.warpPerspective(img2_colour, H, (w, h))
     return aligned_img
 
+def overlay_images(img1, img2):
+    overlay = img1.copy()
+    output = img2.copy()
+    cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
+    cv2.imshow('Overlayed 1 & 2', output)
+    cv2.imwrite('output/overlay-1-2.jpg', output)
 
 if __name__=='__main__':
-    img1 = resize(cv2.imread('photos/1.jpg', 0))
-    img2 = resize(cv2.imread('photos/2.jpg', 0))
+    img1 = resize(cv2.imread('photos/1.jpg'))
+    img2 = resize(cv2.imread('photos/2.jpg'))
 
-    aligned = get_matches(img1, img2)
+    img1_grey = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+    img2_grey = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+    aligned = get_matches(img1_grey, img2_grey, img2)
+
+    overlay_images(img1, aligned)
 
     cv2.imshow('img 1', img1)
     cv2.imshow('img 2', img2)
