@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import imutils
 
+NUM_INPUT_IMAGES = 12
 OUTPUT_IMAGE_WIDTH = 500
 # max number of features of interest to consider
 MAX_FEATURES = 1000
@@ -30,9 +31,9 @@ def get_matches(img1, img2, img2_colour):
     matches = matches[:keep]
 
     # draw matches
-    matched_img = cv2.drawMatches(img1, kp1, img2, kp2, matches, None)
-    cv2.imshow('Matches', matched_img)
-    cv2.imwrite('output/1-2-matches.jpg', matched_img)
+    # matched_img = cv2.drawMatches(img1, kp1, img2, kp2, matches, None)
+    # cv2.imshow('Matches', matched_img)
+    # cv2.imwrite('output/1-2-matches.jpg', matched_img)
 
     # allocate memory to store keypoints for top matches
     pts1 = np.zeros((len(matches), 2), dtype="float")
@@ -51,28 +52,31 @@ def get_matches(img1, img2, img2_colour):
     aligned_img = cv2.warpPerspective(img2_colour, H, (w, h))
     return aligned_img
 
-def overlay_images(img1, img2):
+def overlay_images(img1, img2, i):
     overlay = img1.copy()
     output = img2.copy()
     cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
-    cv2.imshow('Overlayed 1 & 2', output)
-    cv2.imwrite('output/overlay-1-2.jpg', output)
+    cv2.imshow(f'Overlayed {i}', output)
 
 if __name__=='__main__':
-    img1 = resize(cv2.imread('photos/1.jpg'))
-    img2 = resize(cv2.imread('photos/2.jpg'))
+    processed_images = [resize(cv2.imread('photos/1.jpg'))]
 
-    img1_grey = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-    img2_grey = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    for i in range(1, NUM_INPUT_IMAGES):
+        img1 = resize(cv2.imread(f'photos/{i}.jpg'))
+        img2 = resize(cv2.imread(f'photos/{i + 1}.jpg'))
 
-    aligned = get_matches(img1_grey, img2_grey, img2)
+        img1_grey = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+        img2_grey = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-    overlay_images(img1, aligned)
+        aligned = get_matches(img1_grey, img2_grey, img2)
 
-    cv2.imshow('img 1', img1)
-    cv2.imshow('img 2', img2)
-    cv2.imshow('aligned img 2', aligned)
-    cv2.imwrite('output/2-aligned.jpg', aligned)
+        # overlay_images(img1, aligned, i)
 
-    cv2.waitKey(0)
+        processed_images.append(aligned)
+
+    # display processed images in sequence
+    for image in processed_images:
+        cv2.imshow('display', image)
+        cv2.waitKey(1000)
+
     cv2.destroyAllWindows()
