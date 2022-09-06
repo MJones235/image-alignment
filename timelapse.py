@@ -32,6 +32,7 @@ def get_matches(img1, img2):
     # draw matches
     matched_img = cv2.drawMatches(img1, kp1, img2, kp2, matches, None)
     cv2.imshow('Matches', matched_img)
+    cv2.imwrite('output/1-2-matches.jpg', matched_img)
 
     # allocate memory to store keypoints for top matches
     pts1 = np.zeros((len(matches), 2), dtype="float")
@@ -60,6 +61,7 @@ if __name__=='__main__':
     cv2.imshow('img 1', img1)
     cv2.imshow('img 2', img2)
     cv2.imshow('aligned img 2', aligned)
+    cv2.imwrite('output/2-aligned.jpg', aligned)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
