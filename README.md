@@ -3,8 +3,8 @@
 Take two similar images as input
 
 <div>
-  <img src="photos/1.jpg" alt="Image 1 of building site" width="400" />
-  <img src="photos/2.jpg" alt="Image 2 of building site" width="400" /> 
+  <img src="photos/1.jpg" alt="Image 1 of building site" width="500" />
+  <img src="photos/2.jpg" alt="Image 2 of building site" width="500" /> 
 </div>
 
 We can match features of interest on the two images
